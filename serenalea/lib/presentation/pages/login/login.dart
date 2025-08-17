@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
                 Icon(Icons.lock_outline, size: 80, color: AppColors.color1),
                 const SizedBox(height: 20),
                 Text(
-                  "Iniciar Sesión",
+                  "Inicciar Sesión",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,

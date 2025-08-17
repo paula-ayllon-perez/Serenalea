@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "885171300306",
+    "project_id": "serenalea-9ede9",
+    "storage_bucket": "serenalea-9ede9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885171300306:android:77820bdddca74dfbbf8a0b",
+        "android_client_info": {
+          "package_name": "com.example.serenalea"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYsnST0Abb1awmJQU3v5e1_PlPSookz_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
