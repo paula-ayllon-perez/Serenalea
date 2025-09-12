@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/constants/colors.dart';
 
 class LoginPage extends StatefulWidget {
@@ -10,84 +11,85 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool _isLoading = false;
+
+  Future<void> _loginUser() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+      try {
+        // 🔹 Login con FirebaseAuth
+        await _auth.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        // ✅ Si todo va bien → navegar a HomePage (ajusta el nombre de la ruta)
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/home');
+      } on FirebaseAuthException catch (e) {
+        // ⚠️ Errores de Firebase (usuario no existe, pass incorrecta, etc.)
+        String errorMessage;
+        if (e.code == 'user-not-found') {
+          errorMessage = 'No existe un usuario con ese email.';
+        } else if (e.code == 'wrong-password') {
+          errorMessage = 'Contraseña incorrecta.';
+        } else {
+          errorMessage = 'Error: ${e.message}';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      } finally {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Iniciar Sesión')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.lock_outline, size: 80, color: AppColors.color1),
-                const SizedBox(height: 20),
-                Text(
-                  "Inicciar Sesión",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.color1,
-                  ),
-                ),
-                const SizedBox(height: 30),
                 TextFormField(
-                  controller: _userController,
-                  decoration: const InputDecoration(
-                    labelText: "Usuario",
-                    prefixIcon: Icon(Icons.person_outline),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Por favor introduce tu usuario";
-                    }
-                    return null;
-                  },
+                  controller: _emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  validator: (value) => value == null || value.isEmpty ? 'Introduce tu email' : null,
                 ),
-                const SizedBox(height: 20),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: "Contraseña",
-                    prefixIcon: Icon(Icons.lock_outline),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Contraseña'),
                   obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Por favor introduce tu contraseña";
-                    }
-                    return null;
-                  },
+                  validator: (value) => value == null || value.isEmpty ? 'Introduce tu contraseña' : null,
                 ),
                 const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Aquí iría la lógica de login
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Iniciando sesión...")),
-                        );
-                      }
-                    },
-                    child: const Text("Entrar"),
-                  ),
-                ),
-                const SizedBox(height: 10),
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _loginUser,
+                          child: const Text('Iniciar Sesión'),
+                        ),
+                      ),
+                const SizedBox(height: 15),
                 TextButton(
                   onPressed: () {
-                    // Navegar a página de registro
+                    Navigator.pushNamed(context, '/register'); // 🔹 Ir a registro
                   },
-                  child: Text(
-                    "¿No tienes cuenta? Regístrate",
-                    style: TextStyle(color: AppColors.color2),
-                  ),
-                )
+                  child: const Text('¿No tienes cuenta? Regístrate aquí'),
+                ),
               ],
             ),
           ),
