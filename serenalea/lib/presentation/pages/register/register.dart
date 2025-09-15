@@ -123,14 +123,17 @@ Future<void> _registerUser() async {
                 TextFormField(
                   controller: _firstNameController,
                   decoration: const InputDecoration(labelText: 'Nombre'),
+                  validator: (value) => value == null || value.isEmpty ? 'Introduce tu nombre' : null,
                 ),
                 TextFormField(
                   controller: _lastNameController,
                   decoration: const InputDecoration(labelText: 'Apellidos'),
+                  validator: (value) => value == null || value.isEmpty ? 'Introduce tus apellidos' : null,
                 ),
                 TextFormField(
                   controller: _phoneController,
                   decoration: const InputDecoration(labelText: 'Teléfono'),
+                  validator: (value) => value == null || value.isEmpty ? 'Introduce tu teléfono' : null,
                 ),
                 // Año con picker
                 TextFormField(
@@ -138,6 +141,7 @@ Future<void> _registerUser() async {
                   decoration: const InputDecoration(labelText: 'Año de nacimiento'),
                   readOnly: true,
                   onTap: () => _showYearPicker(context),
+                  validator: (value) => value == null || value.isEmpty ? 'Selecciona tu año de nacimiento' : null,
                 ),
                 // Género con dropdown
                 DropdownButtonFormField<String>(
@@ -155,6 +159,7 @@ Future<void> _registerUser() async {
                 TextFormField(
                   controller: _profileController,
                   decoration: const InputDecoration(labelText: 'Perfil'),
+                  validator: (value) => value == null || value.isEmpty ? 'Introduce tu perfil' : null,
                 ),
                 TextFormField(
                   controller: _photoUrlController,

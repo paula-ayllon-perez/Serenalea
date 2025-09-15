@@ -17,10 +17,14 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isLoading = false;
+  String? _errorMessage;
 
   Future<void> _loginUser() async {
     if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
       try {
         // 🔹 Login con FirebaseAuth
         await _auth.signInWithEmailAndPassword(
@@ -32,19 +36,17 @@ class _LoginPageState extends State<LoginPage> {
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/home');
       } on FirebaseAuthException catch (e) {
-        // ⚠️ Errores de Firebase (usuario no existe, pass incorrecta, etc.)
         String errorMessage;
         if (e.code == 'user-not-found') {
           errorMessage = 'No existe un usuario con ese email.';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'Contraseña incorrecta.';
+        } else if (e.code == 'wrong-password' || e.code == 'invalid-credential' || e.code == 'invalid-email') {
+          errorMessage = 'Credenciales incorrectas.';
         } else {
           errorMessage = 'Error: ${e.message}';
         }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
+        setState(() {
+          _errorMessage = errorMessage;
+        });
       } finally {
         setState(() => _isLoading = false);
       }
@@ -74,6 +76,13 @@ class _LoginPageState extends State<LoginPage> {
                   validator: (value) => value == null || value.isEmpty ? 'Introduce tu contraseña' : null,
                 ),
                 const SizedBox(height: 30),
+                if (_errorMessage != null) ...[
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 15),
+                ],
                 _isLoading
                     ? const CircularProgressIndicator()
                     : SizedBox(
