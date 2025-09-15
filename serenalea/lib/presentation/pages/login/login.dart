@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = null;
       });
       try {
-        // 🔹 Login con FirebaseAuth
+        // Login con FirebaseAuth
         await _auth.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(255, 222, 232, 245),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
