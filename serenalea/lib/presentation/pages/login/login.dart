@@ -32,7 +32,6 @@ class _LoginPageState extends State<LoginPage> {
           password: _passwordController.text.trim(),
         );
 
-        // ✅ Si todo va bien → navegar a HomePage (ajusta el nombre de la ruta)
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/home');
       } on FirebaseAuthException catch (e) {
@@ -55,52 +54,102 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Iniciar Sesión')),
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (value) => value == null || value.isEmpty ? 'Introduce tu email' : null,
-                ),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
-                  obscureText: true,
-                  validator: (value) => value == null || value.isEmpty ? 'Introduce tu contraseña' : null,
-                ),
-                const SizedBox(height: 30),
-                if (_errorMessage != null) ...[
-                  Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 15),
-                ],
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _loginUser,
-                          child: const Text('Iniciar Sesión'),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo
+              Image.asset(
+                'lib/core/utils/assets/Logo.png',
+                height: 120,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 24),
+              Card(
+                elevation: 6,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Iniciar Sesión',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            color: AppColors.color1,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                const SizedBox(height: 15),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/register'); // 🔹 Ir a registro
-                  },
-                  child: const Text('¿No tienes cuenta? Regístrate aquí'),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: const Icon(Icons.email_outlined),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          validator: (value) => value == null || value.isEmpty ? 'Introduce tu email' : null,
+                        ),
+                        const SizedBox(height: 18),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'Contraseña',
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          obscureText: true,
+                          validator: (value) => value == null || value.isEmpty ? 'Introduce tu contraseña' : null,
+                        ),
+                        const SizedBox(height: 18),
+                        if (_errorMessage != null) ...[
+                          Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                        _isLoading
+                            ? const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                child: CircularProgressIndicator(),
+                              )
+                            : SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.color1,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                  ),
+                                  onPressed: _loginUser,
+                                  child: const Text('Iniciar Sesión', style: TextStyle(fontSize: 16)),
+                                ),
+                              ),
+                        const SizedBox(height: 10),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/register');
+                          },
+                          child: Text(
+                            '¿No tienes cuenta? Regístrate aquí',
+                            style: TextStyle(color: AppColors.color2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
