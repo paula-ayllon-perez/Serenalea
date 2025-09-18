@@ -1,9 +1,9 @@
 import '../models/user_dto.dart';
-import '../services/firestore.dart';
+import '../services/user_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 
 class UserRepository {
-  final FirestoreService _firestoreService = FirestoreService();
+  final UserFirestoreService _firestoreService = UserFirestoreService();
 
   // Registro: crea usuario en Auth y Firestore
   Future<void> registerUser({
