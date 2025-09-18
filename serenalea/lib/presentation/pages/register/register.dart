@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb; // 👈 añadido para registrar en Auth
 import '../../../data/models/user_dto.dart';
-import '../../../data/services/firestore.dart';
+import '../../../data/repositories/user_repository.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -13,12 +12,10 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-
-  final fb.FirebaseAuth _auth = fb.FirebaseAuth.instance; // 👈 instancia de FirebaseAuth
-  final FirestoreService _firestoreService = FirestoreService();
+  final UserRepository _userRepository = UserRepository();
 
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController(); // 👈 añadida contraseña
+  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -57,46 +54,37 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-Future<void> _registerUser() async {
-  if (_formKey.currentState!.validate()) {
-    try {
-      // 1️⃣ Crear usuario en FirebaseAuth
-      final userCredential = await fb.FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-
-      final uid = userCredential.user!.uid;
-
-      // 2️⃣ Crear objeto de tu modelo User
-      final user = User(
-        uid: uid,
-        birthYear: int.tryParse(_birthYearController.text) ?? 0,
-        email: _emailController.text,
-        firstName: _firstNameController.text,
-        gender: _genderController.text,
-        lastName: _lastNameController.text,
-        phone: _phoneController.text,
-        profiles: [_profileController.text],
-        photoUrl: _photoUrlController.text.isNotEmpty ? _photoUrlController.text : null,
-      );
-
-      // 3️⃣ Guardar en Firestore con UID fijo
-      await FirestoreService().usersCollection.doc(uid).set(user.toMap());
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario registrado correctamente')),
-      );
-      Navigator.pushReplacementNamed(context, '/home');
-    } on fb.FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.message}')),
-      );
+  Future<void> _registerUser() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final user = User(
+          uid: '', // El repositorio/servicio lo asigna tras crear en Auth
+          birthYear: int.tryParse(_birthYearController.text) ?? 0,
+          email: _emailController.text,
+          firstName: _firstNameController.text,
+          gender: _genderController.text,
+          lastName: _lastNameController.text,
+          phone: _phoneController.text,
+          profiles: [_profileController.text],
+          photoUrl: _photoUrlController.text.isNotEmpty ? _photoUrlController.text : null,
+        );
+        await _userRepository.registerUser(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          user: user,
+        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Usuario registrado correctamente')),
+        );
+        Navigator.pushReplacementNamed(context, '/home');
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {

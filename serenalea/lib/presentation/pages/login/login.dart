@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/constants/colors.dart';
+import '../../../data/repositories/user_repository.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,7 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final UserRepository _userRepository = UserRepository();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -26,22 +26,22 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = null;
       });
       try {
-        // Login con FirebaseAuth
-        await _auth.signInWithEmailAndPassword(
+        await _userRepository.login(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/home');
-      } on FirebaseAuthException catch (e) {
-        String errorMessage;
-        if (e.code == 'user-not-found') {
+      } on Exception catch (e) {
+        String errorMessage = 'Error desconocido';
+        if (e.toString().contains('user-not-found')) {
           errorMessage = 'No existe un usuario con ese email.';
-        } else if (e.code == 'wrong-password' || e.code == 'invalid-credential' || e.code == 'invalid-email') {
+        } else if (e.toString().contains('wrong-password') || e.toString().contains('invalid-credential') || e.toString().contains('invalid-email')) {
           errorMessage = 'Credenciales incorrectas.';
+        } else if (e.toString().contains('firebase_auth')) {
+          errorMessage = 'Error de autenticación.';
         } else {
-          errorMessage = 'Error: ${e.message}';
+          errorMessage = 'Error: ${e.toString()}';
         }
         setState(() {
           _errorMessage = errorMessage;
