@@ -138,7 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   items: genders.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedGender = value;
+                      selectedGender = value; 
                       _genderController.text = value ?? '';
                     });
                   },

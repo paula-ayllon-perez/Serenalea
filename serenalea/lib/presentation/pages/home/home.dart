@@ -1,8 +1,44 @@
+
 import 'package:flutter/material.dart';
 import '../../widgets/main_drawer.dart';
+import '../../../data/models/activity_dto.dart';
+import '../../../data/repositories/activity_repository.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    _insertDefaultActivitiesIfNeeded();
+  }
+
+  void _insertDefaultActivitiesIfNeeded() async {
+    final repo = ActivityRepository();
+    final activities = await repo.getAllActivities();
+
+    // Mindfulness respiración
+    final existsMind = activities.any((a) => a.category.toLowerCase() == 'mindfulness' || a.title.toLowerCase().contains('mindfulness'));
+    if (!existsMind) {
+      final mindActivity = Activity(
+        id: '',
+        title: 'Respiración Mindfulness',
+        description: 'Actividad guiada de respiración con animaciones relajantes.',
+        suitableProfiles: ['Todos'],
+        duration: 5,
+        score: 8,
+        category: 'mindfulness',
+      );
+      await repo.addActivity(mindActivity);
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
