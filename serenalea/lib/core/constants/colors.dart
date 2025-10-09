@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -8,4 +9,5 @@ class AppColors {
   static const Color color4 = Color(0xFF8CB1DC);
   static const Color color5 = Color(0xFFA4C8F5);
   static const Color white = Colors.white;
+  static const Color softBlue = Color(0xFFE3F0FF); // azul muy suave para fondos relajantes
 }
