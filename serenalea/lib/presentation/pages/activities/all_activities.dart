@@ -57,6 +57,8 @@ class _AllActivitiesPageState extends State<AllActivitiesPage> {
                       context,
                       MaterialPageRoute(builder: (_) => const MindfulnessActivityPage()),
                     );
+                  } else if (activity.category.toLowerCase() == 'creativa' || activity.title.toLowerCase().contains('creativa')) {
+                    Navigator.pushNamed(context, '/creative');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Actividad aún no implementada.')),

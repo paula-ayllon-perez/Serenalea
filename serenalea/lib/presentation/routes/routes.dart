@@ -3,6 +3,7 @@ import 'package:serenalea/presentation/pages/home/home.dart';
 import 'package:serenalea/presentation/pages/activities/all_activities.dart';
 import '../pages/login/login.dart';
 import '../pages/register/register.dart';
+import '../pages/activities/activity/creative_actovity.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/login': (context) => const LoginPage(),
@@ -10,4 +11,5 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/': (context) => const HomePage(),
   '/home': (context) => const HomePage(),
   '/activities': (context) => const AllActivitiesPage(),
+  '/creative': (context) => const CreativeActivityPage(),
 };

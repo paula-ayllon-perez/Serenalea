@@ -91,6 +91,21 @@ class _HomePageState extends State<HomePage> {
       );
       await repo.addActivity(mindActivity);
     }
+
+    // Actividad creativa
+    final existsCreative = activities.any((a) => a.category.toLowerCase() == 'creativa' || a.title.toLowerCase().contains('creativa'));
+    if (!existsCreative) {
+      final creativeActivity = Activity(
+        id: '',
+        title: 'Actividad Creativa',
+        description: 'Reto creativo: dibuja, fotografía o crea y comparte tu resultado.',
+        suitableProfiles: ['Todos'],
+        duration: 5,
+        score: 8,
+        category: 'creativa',
+      );
+      await repo.addActivity(creativeActivity);
+    }
   }
 
 
