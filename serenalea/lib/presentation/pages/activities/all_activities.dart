@@ -59,6 +59,8 @@ class _AllActivitiesPageState extends State<AllActivitiesPage> {
                     );
                   } else if (activity.category.toLowerCase() == 'creativa' || activity.title.toLowerCase().contains('creativa')) {
                     Navigator.pushNamed(context, '/creative');
+                  } else if (activity.category.toLowerCase() == 'observación' || activity.title.toLowerCase().contains('observación')) {
+                    Navigator.pushNamed(context, '/observing');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Actividad aún no implementada.')),
