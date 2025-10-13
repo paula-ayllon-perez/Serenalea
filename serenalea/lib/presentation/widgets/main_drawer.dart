@@ -1,37 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:serenalea/core/theme/app_theme.dart';
 
-class MainDrawer extends StatelessWidget {
-  const MainDrawer({Key? key}) : super(key: key);
+class MainBottomBar extends StatefulWidget {
+  const MainBottomBar({Key? key}) : super(key: key);
+
+  @override
+  State<MainBottomBar> createState() => _MainBottomBarState();
+}
+
+class _MainBottomBarState extends State<MainBottomBar> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    switch (index) {
+      case 0:
+        Navigator.pushNamed(context, '/'); // Home
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/search'); // Buscar
+        break;
+      case 2:
+        Navigator.pushNamed(context, '/random-activities'); // Actividades aleatorias
+        break;
+      case 3:
+        Navigator.pushNamed(context, '/all-activities'); // Lista de todas las actividades
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: AppTheme.lightTheme.primaryColor,
-            ),
-            child: const Text('Menú', style: TextStyle(color: Colors.white, fontSize: 24)),
-          ),
-          ListTile(
-            leading: const Icon(Icons.login),
-            title: const Text('Login'),
-            onTap: () {
-              Navigator.pushNamed(context, '/login');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.app_registration),
-            title: const Text('Registro'),
-            onTap: () {
-              Navigator.pushNamed(context, '/register');
-            },
-          ),
-        ],
-      ),
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: AppTheme.lightTheme.primaryColor,
+      selectedItemColor: Colors.white,
+      unselectedItemColor: Colors.white70,
+      currentIndex: _selectedIndex,
+      onTap: _onItemTapped,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.search),
+          label: 'Buscar',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.shuffle),
+          label: 'Random',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list),
+          label: 'Actividades',
+        ),
+      ],
     );
   }
 }

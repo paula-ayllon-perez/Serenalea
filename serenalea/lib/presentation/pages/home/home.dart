@@ -74,6 +74,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _insertDefaultActivitiesIfNeeded() async {
+    // (Eliminado bloque duplicado de actividad de observación)
     final repo = ActivityRepository();
     final activities = await repo.getAllActivities();
 
@@ -106,6 +107,21 @@ class _HomePageState extends State<HomePage> {
       );
       await repo.addActivity(creativeActivity);
     }
+
+    // Actividad de observación
+    final existsObserving = activities.any((a) => a.category.toLowerCase() == 'observación' || a.title.toLowerCase().contains('observación'));
+    if (!existsObserving) {
+      final observingActivity = Activity(
+        id: '',
+        title: 'Actividad de Observación',
+        description: 'Reto de observación: observa, busca y comparte una foto de lo que encuentres.',
+        suitableProfiles: ['Todos'],
+        duration: 5,
+        score: 8,
+        category: 'observación',
+      );
+      await repo.addActivity(observingActivity);
+    }
   }
 
 
@@ -115,8 +131,17 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            tooltip: 'Perfil',
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+          ),
+        ],
       ),
-      drawer: const MainDrawer(),
+      bottomNavigationBar: const MainBottomBar(),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
