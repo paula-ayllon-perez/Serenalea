@@ -42,10 +42,7 @@ class _RandomActivitiesPageState extends State<RandomActivitiesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Actividad Random'),
-      ),
-      body: currentIndex == null
+  body: currentIndex == null
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
