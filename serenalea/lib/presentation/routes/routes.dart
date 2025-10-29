@@ -7,6 +7,7 @@ import '../pages/activities/activity/creative_actovity.dart';
 import '../pages/profile/profile.dart';
 import '../pages/activities/activity/observing_activity.dart';
 import '../pages/activities/random_activites.dart';
+import '../pages/register/register_assessment.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/login': (context) => const LoginPage(),
@@ -19,6 +20,7 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/profile': (context) => const ProfilePage(),
   '/random-activities': (context) => const RandomActivitiesPage(),
   '/all-activities': (context) => const AllActivitiesPage(),
+  '/register-assessment': (context) => const RegisterAssessmentPage(),
   '/search': (context) => Scaffold(
     appBar: AppBar(title: const Text('Buscar')),
     body: const Center(child: Text('Función de búsqueda próximamente')), // Placeholder
