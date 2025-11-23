@@ -9,7 +9,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../widgets/main_drawer.dart';
 import '../../../data/models/activity_dto.dart';
+import '../../../data/models/activity_category_dto.dart';
 import '../../../data/repositories/activity_repository.dart';
+import '../../../data/repositories/category_repository.dart';
 import '../activities/activity/generic_activity_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -72,10 +74,14 @@ class _HomePageState extends State<HomePage> {
 
   // Repositorio
   final ActivityRepository _activityRepo = ActivityRepository();
+  final CategoryRepository _categoryRepo = CategoryRepository();
 
   // Recomendadas
   List<Activity> _recommendedActivities = [];
   bool _loadingRecommendations = true;
+  
+  // Mapa de categorías por ID para acceso rápido
+  Map<String, ActivityCategory> _categoriesMap = {};
 
   void _openActivity(Activity activity) {
     Navigator.push(
@@ -92,6 +98,10 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadRecommendedActivities() async {
     try {
+      // Cargar categorías primero
+      final categories = await _categoryRepo.getAllCategories();
+      _categoriesMap = {for (var cat in categories) cat.id: cat};
+      
       final activities = await _activityRepo.getAllActivities();
       print('📊 Total actividades cargadas: ${activities.length}');
       
@@ -146,7 +156,34 @@ class _HomePageState extends State<HomePage> {
   // Antes la app añadía actividades por defecto aquí. Se eliminó para evitar duplicados
   // ahora que las actividades ya existen en la colección de Firestore.
 
+  // Convertir nombre de icono a IconData
+  IconData _getIconData(String iconName) {
+    switch (iconName.toLowerCase()) {
+      case 'self_improvement':
+        return Icons.self_improvement;
+      case 'directions_walk':
+        return Icons.directions_walk;
+      case 'brush':
+        return Icons.brush;
+      case 'visibility':
+        return Icons.visibility;
+      case 'favorite':
+        return Icons.favorite;
+      case 'psychology':
+        return Icons.psychology;
+      default:
+        return Icons.category;
+    }
+  }
 
+  // Convertir hex a Color
+  Color _getColor(String hexColor) {
+    try {
+      return Color(int.parse(hexColor.replaceAll('#', '0xFF')));
+    } catch (e) {
+      return AppColors.color1;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -260,6 +297,15 @@ class _HomePageState extends State<HomePage> {
                       ? Text('No hay recomendaciones por ahora. Explora las actividades disponibles.', style: TextStyle(color: AppColors.color3))
                       : Column(
                           children: _recommendedActivities.map((a) {
+                            // Obtener categoría de la actividad
+                            final category = _categoriesMap[a.categoryId];
+                            final iconData = category != null 
+                                ? _getIconData(category.iconName) 
+                                : Icons.self_improvement_rounded;
+                            final iconColor = category != null 
+                                ? _getColor(category.colorHex) 
+                                : AppColors.color2;
+                            
                             return Padding(
                               padding: EdgeInsets.only(bottom: width < 380 ? 12.0 : 14.0),
                               child: Material(
@@ -278,10 +324,16 @@ class _HomePageState extends State<HomePage> {
                                           width: width < 380 ? 56 : 72,
                                           height: width < 380 ? 56 : 72,
                                           decoration: BoxDecoration(
-                                            color: AppColors.softBlue,
+                                            color: iconColor.withOpacity(0.15),
                                             borderRadius: BorderRadius.circular(10),
                                           ),
-                                          child: Center(child: Icon(Icons.self_improvement_rounded, color: AppColors.color2)),
+                                          child: Center(
+                                            child: Icon(
+                                              iconData, 
+                                              color: iconColor,
+                                              size: width < 380 ? 28 : 36,
+                                            ),
+                                          ),
                                         ),
                                         const SizedBox(width: 12),
                                         Expanded(
