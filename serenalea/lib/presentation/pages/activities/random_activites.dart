@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'activity/mindfullness_activity.dart';
-import 'activity/walk_activity.dart';
-import 'activity/creative_actovity.dart';
-import 'activity/observing_activity.dart';
+import '../../../core/constants/colors.dart';
+import '../../../data/repositories/activity_repository.dart';
+import '../../../data/models/activity_dto.dart';
+import 'activity/generic_activity_page.dart';
 import 'dart:math';
 
 class RandomActivitiesPage extends StatefulWidget {
@@ -13,50 +13,90 @@ class RandomActivitiesPage extends StatefulWidget {
 }
 
 class _RandomActivitiesPageState extends State<RandomActivitiesPage> {
-  final List<Widget> activityPages = [
-    const MindfulnessActivityPage(),
-    const WalkActivityPage(),
-    const CreativeActivityPage(),
-    const ObservingActivityPage(),
-  ];
-
-  int? currentIndex;
+  final ActivityRepository _activityRepo = ActivityRepository();
   final Random _random = Random();
-
-  void _showNextActivity() {
-    setState(() {
-      int nextIndex;
-      do {
-        nextIndex = _random.nextInt(activityPages.length);
-      } while (nextIndex == currentIndex && activityPages.length > 1);
-      currentIndex = nextIndex;
-    });
-  }
+  Activity? _currentActivity;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _showNextActivity();
+    _loadRandomActivity();
+  }
+
+  Future<void> _loadRandomActivity() async {
+    setState(() => _isLoading = true);
+    
+    try {
+      final activities = await _activityRepo.getAllActivities();
+      if (activities.isNotEmpty) {
+        final randomIndex = _random.nextInt(activities.length);
+        setState(() {
+          _currentActivity = activities[randomIndex];
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showNextActivity() {
+    _loadRandomActivity();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  body: currentIndex == null
+      appBar: AppBar(
+        title: const Text('Actividad Aleatoria'),
+        backgroundColor: AppColors.color1,
+      ),
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(child: activityPages[currentIndex!]),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.shuffle_rounded),
-                    label: const Text('Siguiente'),
-                    onPressed: _showNextActivity,
+          : _currentActivity == null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: AppColors.color3),
+                      const SizedBox(height: 16),
+                      const Text('No hay actividades disponibles'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _showNextActivity,
+                        child: const Text('Reintentar'),
+                      ),
+                    ],
                   ),
+                )
+              : Column(
+                  children: [
+                    Expanded(
+                      child: GenericActivityPage(
+                        activity: _currentActivity!,
+                        categoryName: 'Aleatoria',
+                        categoryColor: AppColors.color2,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.shuffle_rounded),
+                        label: const Text('Siguiente actividad'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                          backgroundColor: AppColors.color2,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: _showNextActivity,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 }

@@ -10,10 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/main_drawer.dart';
 import '../../../data/models/activity_dto.dart';
 import '../../../data/repositories/activity_repository.dart';
-import '../activities/activity/walk_activity.dart';
-import '../activities/activity/mindfullness_activity.dart';
-import '../activities/activity/creative_actovity.dart';
-import '../activities/activity/observing_activity.dart';
+import '../activities/activity/generic_activity_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -81,54 +78,59 @@ class _HomePageState extends State<HomePage> {
   bool _loadingRecommendations = true;
 
   void _openActivity(Activity activity) {
-    if (activity.category.toLowerCase() == 'walk' || activity.title.toLowerCase().contains('paseo')) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const WalkActivityPage()),
-      );
-    } else if (activity.category.toLowerCase() == 'mindfulness' || activity.title.toLowerCase().contains('mindfulness')) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const MindfulnessActivityPage()),
-      );
-    } else if (activity.category.toLowerCase() == 'creativa' || activity.title.toLowerCase().contains('creativa')) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const CreativeActivityPage()),
-      );
-    } else if (activity.category.toLowerCase() == 'observación' || activity.title.toLowerCase().contains('observación')) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const ObservingActivityPage()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Actividad aún no implementada.')));
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GenericActivityPage(
+          activity: activity,
+          categoryName: 'General', // Podrías obtener la categoría real si la necesitas
+          categoryColor: AppColors.color1,
+        ),
+      ),
+    );
   }
 
   Future<void> _loadRecommendedActivities() async {
     try {
       final activities = await _activityRepo.getAllActivities();
+      print('📊 Total actividades cargadas: ${activities.length}');
+      
       final firebaseUser = FirebaseAuth.instance.currentUser;
 
       // Si no hay usuario autenticado, mostramos actividades marcadas como 'Todos'
       if (firebaseUser == null) {
-        _recommendedActivities = activities.where((a) => a.suitableProfiles.map((s) => s.toLowerCase()).contains('todos')).toList();
+        print('⚠️ No hay usuario autenticado');
+        _recommendedActivities = activities.where((a) {
+          final hasAll = a.suitableProfiles.map((s) => s.toLowerCase()).contains('todos');
+          return hasAll;
+        }).toList();
+        print('✅ Actividades filtradas para "Todos": ${_recommendedActivities.length}');
       } else {
         final doc = await FirebaseFirestore.instance.collection('users').doc(firebaseUser.uid).get();
         final List<String> userProfiles = doc.exists ? List<String>.from(doc.data()?['profiles'] ?? []) : [];
+        print('👤 Perfiles del usuario: $userProfiles');
 
         _recommendedActivities = activities.where((a) {
           final lower = a.suitableProfiles.map((s) => s.toLowerCase()).toList();
-          if (lower.contains('todos')) return true;
+          print('  🔍 Actividad "${a.title}" - perfiles: ${a.suitableProfiles}');
+          
+          if (lower.contains('todos')) {
+            print('    ✓ Coincide con "todos"');
+            return true;
+          }
+          
           for (final p in userProfiles) {
-            if (lower.contains(p.toLowerCase())) return true;
+            if (lower.contains(p.toLowerCase())) {
+              print('    ✓ Coincide con perfil "$p"');
+              return true;
+            }
           }
           return false;
         }).toList();
+        print('✅ Actividades recomendadas totales: ${_recommendedActivities.length}');
       }
     } catch (e) {
-      // En caso de error dejamos lista vacía (se puede loggear si hace falta)
+      print('❌ Error cargando actividades: $e');
       _recommendedActivities = [];
     } finally {
       if (mounted) setState(() => _loadingRecommendations = false);
@@ -293,7 +295,7 @@ class _HomePageState extends State<HomePage> {
                                               Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
-                                                  Text(a.category, style: TextStyle(color: AppColors.color3, fontSize: width < 380 ? 11 : 12)),
+                                                  Text(a.difficultyLabel, style: TextStyle(color: AppColors.color3, fontSize: width < 380 ? 11 : 12)),
                                                   Text('${a.duration} min', style: TextStyle(color: AppColors.color4, fontSize: width < 380 ? 11 : 12)),
                                                 ],
                                               )

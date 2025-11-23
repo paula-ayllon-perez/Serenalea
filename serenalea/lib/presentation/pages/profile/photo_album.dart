@@ -331,6 +331,70 @@ class _PhotoCard extends StatelessWidget {
     required this.onTap,
   });
 
+  Widget _buildImageOrIcon() {
+    // Detectar si es un marcador de icono
+    if (photo.imagePath.startsWith('icon:')) {
+      final iconType = photo.imagePath.substring(5); // Quitar "icon:"
+      
+      IconData iconData;
+      Color backgroundColor;
+      
+      switch (iconType) {
+        case 'text':
+          iconData = Icons.edit_note_rounded;
+          backgroundColor = const Color(0xFF00BCD4); // Cian
+          break;
+        case 'meditation':
+          iconData = Icons.self_improvement_rounded;
+          backgroundColor = const Color(0xFF7B68EE); // Morado
+          break;
+        case 'simple':
+          iconData = Icons.check_circle_rounded;
+          backgroundColor = const Color(0xFF4CAF50); // Verde
+          break;
+        default:
+          iconData = Icons.photo_library;
+          backgroundColor = AppColors.color4;
+      }
+      
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              backgroundColor,
+              backgroundColor.withOpacity(0.7),
+            ],
+          ),
+        ),
+        child: Center(
+          child: Icon(
+            iconData,
+            size: 80,
+            color: Colors.white,
+          ),
+        ),
+      );
+    }
+    
+    // Si es una foto real
+    return Image.file(
+      File(photo.imagePath),
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: AppColors.color4.withOpacity(0.3),
+          child: Icon(
+            Icons.broken_image,
+            size: 50,
+            color: AppColors.color3,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -353,21 +417,8 @@ class _PhotoCard extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // Imagen
-                Image.file(
-                  File(photo.imagePath),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: AppColors.color4.withOpacity(0.3),
-                      child: Icon(
-                        Icons.broken_image,
-                        size: 50,
-                        color: AppColors.color3,
-                      ),
-                    );
-                  },
-                ),
+                // Imagen o icono
+                _buildImageOrIcon(),
                 
                 // Gradiente oscuro en la parte inferior
                 Positioned(
@@ -452,6 +503,69 @@ class PhotoDetailPage extends StatelessWidget {
     required this.onDelete,
   }) : super(key: key);
 
+  Widget _buildImageOrIcon() {
+    // Detectar si es un marcador de icono
+    if (photo.imagePath.startsWith('icon:')) {
+      final iconType = photo.imagePath.substring(5);
+      
+      IconData iconData;
+      Color backgroundColor;
+      
+      switch (iconType) {
+        case 'text':
+          iconData = Icons.edit_note_rounded;
+          backgroundColor = const Color(0xFF00BCD4);
+          break;
+        case 'meditation':
+          iconData = Icons.self_improvement_rounded;
+          backgroundColor = const Color(0xFF7B68EE);
+          break;
+        case 'simple':
+          iconData = Icons.check_circle_rounded;
+          backgroundColor = const Color(0xFF4CAF50);
+          break;
+        default:
+          iconData = Icons.photo_library;
+          backgroundColor = AppColors.color4;
+      }
+      
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              backgroundColor,
+              backgroundColor.withOpacity(0.7),
+            ],
+          ),
+        ),
+        child: Center(
+          child: Icon(
+            iconData,
+            size: 150,
+            color: Colors.white,
+          ),
+        ),
+      );
+    }
+    
+    // Si es una foto real
+    return Image.file(
+      File(photo.imagePath),
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        return Center(
+          child: Icon(
+            Icons.broken_image,
+            size: 100,
+            color: Colors.white.withOpacity(0.5),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -463,19 +577,7 @@ class PhotoDetailPage extends StatelessWidget {
             child: Hero(
               tag: photo.id,
               child: InteractiveViewer(
-                child: Image.file(
-                  File(photo.imagePath),
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Center(
-                      child: Icon(
-                        Icons.broken_image,
-                        size: 100,
-                        color: Colors.white.withOpacity(0.5),
-                      ),
-                    );
-                  },
-                ),
+                child: _buildImageOrIcon(),
               ),
             ),
           ),

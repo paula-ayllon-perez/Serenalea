@@ -26,7 +26,7 @@ class _MainBottomBarState extends State<MainBottomBar> {
         Navigator.pushNamed(context, '/random-activities'); // Actividades aleatorias
         break;
       case 3:
-        Navigator.pushNamed(context, '/all-activities'); // Lista de todas las actividades
+        Navigator.pushNamed(context, '/activities'); // Categorías de actividades
         break;
     }
   }

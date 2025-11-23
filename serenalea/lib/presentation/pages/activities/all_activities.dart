@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/activity_dto.dart';
 import '../../../data/repositories/activity_repository.dart';
-
-import 'activity/walk_activity.dart';
-import 'activity/mindfullness_activity.dart';
+import '../../../core/constants/colors.dart';
+import 'activity/generic_activity_page.dart';
 
 
 class AllActivitiesPage extends StatefulWidget {
@@ -47,25 +46,16 @@ class _AllActivitiesPageState extends State<AllActivitiesPage> {
               return InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () {
-                  if (activity.category.toLowerCase() == 'walk' || activity.title.toLowerCase().contains('paseo')) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const WalkActivityPage()),
-                    );
-                  } else if (activity.category.toLowerCase() == 'mindfulness' || activity.title.toLowerCase().contains('mindfulness')) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MindfulnessActivityPage()),
-                    );
-                  } else if (activity.category.toLowerCase() == 'creativa' || activity.title.toLowerCase().contains('creativa')) {
-                    Navigator.pushNamed(context, '/creative');
-                  } else if (activity.category.toLowerCase() == 'observación' || activity.title.toLowerCase().contains('observación')) {
-                    Navigator.pushNamed(context, '/observing');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Actividad aún no implementada.')),
-                    );
-                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => GenericActivityPage(
+                        activity: activity,
+                        categoryName: 'General',
+                        categoryColor: AppColors.color1,
+                      ),
+                    ),
+                  );
                 },
                 child: Card(
                   elevation: 3,
@@ -83,9 +73,9 @@ class _AllActivitiesPageState extends State<AllActivitiesPage> {
                           spacing: 8,
                           children: [
                             Chip(label: Text('Perfiles: ${activity.suitableProfiles.join(", ")}')),
-                            Chip(label: Text('Duración: ${activity.duration}')),
+                            Chip(label: Text('Duración: ${activity.duration} min')),
                             Chip(label: Text('Puntuación: ${activity.score}')),
-                            Chip(label: Text('Categoría: ${activity.category}')),
+                            Chip(label: Text('Dificultad: ${activity.difficultyLabel}')),
                           ],
                         ),
                       ],

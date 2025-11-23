@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/models/user_dto.dart' as local;
 import '../../../data/repositories/user_repository.dart';
+import '../../../core/utils/database_initializer.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -569,6 +570,52 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   onPressed: () {
                                     Navigator.pushNamed(context, '/change-password');
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              // Botón Reiniciar Base de Datos (TEMPORAL - Solo para desarrollo)
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  icon: const Icon(Icons.refresh_rounded),
+                                  label: const Text('Reiniciar Actividades (Dev)'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                                  ),
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Reiniciar Actividades'),
+                                        content: const Text('Esto eliminará todas las categorías y actividades actuales y las reemplazará con las nuevas. ¿Continuar?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, false),
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () => Navigator.pop(context, true),
+                                            child: const Text('Reiniciar'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    
+                                    if (confirm == true) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Reiniciando base de datos...')),
+                                      );
+                                      await DatabaseInitializer.resetDatabase();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('✅ Base de datos reiniciada correctamente')),
+                                      );
+                                    }
                                   },
                                 ),
                               ),

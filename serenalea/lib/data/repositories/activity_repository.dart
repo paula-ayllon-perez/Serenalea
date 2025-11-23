@@ -9,9 +9,9 @@ class ActivityRepository {
     return await _service.getAllActivities();
   }
 
-  // Obtener actividades por categoría
-  Future<List<Activity>> getActivitiesByCategory(String category) async {
-    return await _service.getActivitiesByCategory(category);
+  // Obtener actividades por ID de categoría
+  Future<List<Activity>> getActivitiesByCategory(String categoryId) async {
+    return await _service.getActivitiesByCategory(categoryId);
   }
 
   // Añadir una nueva actividad
