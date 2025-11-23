@@ -34,4 +34,13 @@ class UserFirestoreService {
     );
     return credential.user;
   }
+
+  // ACTUALIZAR USUARIO: actualiza los datos en Firestore
+  Future<void> updateUser(String uid, User user) async {
+    try {
+      await usersCollection.doc(uid).update(user.toMap());
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

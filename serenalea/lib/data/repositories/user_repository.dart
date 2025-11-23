@@ -21,4 +21,9 @@ class UserRepository {
   }) async {
     return await _firestoreService.login(email, password);
   }
+
+  // Actualizar usuario: actualiza los datos en Firestore
+  Future<void> updateUser(String uid, User user) async {
+    await _firestoreService.updateUser(uid, user);
+  }
 }

@@ -5,6 +5,8 @@ import '../pages/register/register.dart';
 import '../pages/profile/profile.dart';
 import '../pages/activities/random_activites.dart';
 import '../pages/register/register_assessment.dart';
+import '../pages/profile/photo_album.dart';
+import '../pages/profile/change_password.dart';
 import 'activity_routes.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
@@ -16,6 +18,8 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/': (context) => const HomePage(),
   '/home': (context) => const HomePage(),
   '/profile': (context) => const ProfilePage(),
+  '/photo-album': (context) => const PhotoAlbumPage(),
+  '/change-password': (context) => const ChangePasswordPage(),
   '/random-activities': (context) => const RandomActivitiesPage(),
   '/register-assessment': (context) => const RegisterAssessmentPage(),
   '/search': (context) => Scaffold(
