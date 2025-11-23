@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../../core/constants/colors.dart';
+import '../../../../data/repositories/photo_repository.dart';
 
 class WalkActivityPage extends StatefulWidget {
   const WalkActivityPage({Key? key}) : super(key: key);
@@ -35,6 +36,7 @@ class _WalkActivityPageState extends State<WalkActivityPage> {
   final Random _random = Random();
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  final PhotoRepository _photoRepository = PhotoRepository();
 
   @override
   void initState() {
@@ -59,6 +61,31 @@ class _WalkActivityPageState extends State<WalkActivityPage> {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
+      
+      // Guardar la foto en el álbum
+      try {
+        await _photoRepository.savePhoto(
+          imagePath: pickedFile.path,
+          activityName: 'Actividad de Paseo',
+          activityCategory: 'Walk',
+          description: prompts[currentIndex],
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✓ Foto guardada en tu álbum'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al guardar: $e')),
+          );
+        }
+      }
     }
   }
 

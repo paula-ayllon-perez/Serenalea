@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/colors.dart';
+import '../../../../data/repositories/photo_repository.dart';
 
 class ObservingActivityPage extends StatefulWidget {
   const ObservingActivityPage({Key? key}) : super(key: key);
@@ -28,6 +29,7 @@ class _ObservingActivityPageState extends State<ObservingActivityPage> {
 
   int challengeIndex = 0;
   File? _imageFile;
+  final PhotoRepository _photoRepository = PhotoRepository();
 
   @override
   void initState() {
@@ -48,6 +50,31 @@ class _ObservingActivityPageState extends State<ObservingActivityPage> {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
+      
+      // Guardar la foto en el álbum
+      try {
+        await _photoRepository.savePhoto(
+          imagePath: pickedFile.path,
+          activityName: 'Actividad de Observación',
+          activityCategory: 'Observación',
+          description: observingChallenges[challengeIndex],
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✓ Foto guardada en tu álbum'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al guardar: $e')),
+          );
+        }
+      }
     }
   }
 
