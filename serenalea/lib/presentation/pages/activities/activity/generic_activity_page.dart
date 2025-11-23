@@ -694,7 +694,7 @@ class _GenericActivityPageState extends State<GenericActivityPage> with TickerPr
       _isMeditating = true;
       _currentCycle = 0;
       _totalCycles = 10;
-      _breathPhase = 'Inhala'; // Inicializar con la primera fase
+      _breathPhase = 'Inhala'; 
     });
 
     _breathController = AnimationController(
@@ -890,42 +890,48 @@ class _GenericActivityPageState extends State<GenericActivityPage> with TickerPr
           ),
           const SizedBox(height: 32),
           
-          // Círculo animado
-          AnimatedBuilder(
-            animation: _breathAnimation ?? AlwaysStoppedAnimation(0.5),
-            builder: (context, child) {
-              final size = 120 + ((_breathAnimation?.value ?? 0.5) * 140);
-              return Container(
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      widget.categoryColor,
-                      widget.categoryColor.withOpacity(0.6),
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: widget.categoryColor.withOpacity(0.4),
-                      blurRadius: 30,
-                      spreadRadius: 10,
+          // Círculo animado con contenedor fijo
+          SizedBox(
+            width: 260,
+            height: 260,
+            child: Center(
+              child: AnimatedBuilder(
+                animation: _breathAnimation ?? AlwaysStoppedAnimation(0.5),
+                builder: (context, child) {
+                  final size = 120 + ((_breathAnimation?.value ?? 0.5) * 140);
+                  return Container(
+                    width: size,
+                    height: size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          widget.categoryColor,
+                          widget.categoryColor.withOpacity(0.6),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: widget.categoryColor.withOpacity(0.4),
+                          blurRadius: 30,
+                          spreadRadius: 10,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    _breathPhase,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    child: Center(
+                      child: Text(
+                        _breathPhase,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
+                  );
+                },
+              ),
+            ),
           ),
           
           const SizedBox(height: 48),
