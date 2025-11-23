@@ -28,6 +28,9 @@ class MyApp extends StatelessWidget {
       title: 'Mi App TFG',
       theme: AppTheme.lightTheme,
       routes: appRoutes,
+      // Ruta inicial que determina dónde comenzar
+      initialRoute: '/',
     ); 
   }
 }
+

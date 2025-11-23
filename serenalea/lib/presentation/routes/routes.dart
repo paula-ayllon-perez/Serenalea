@@ -8,24 +8,33 @@ import '../pages/register/register_assessment.dart';
 import '../pages/profile/photo_album.dart';
 import '../pages/profile/change_password.dart';
 import '../pages/diary/diary_page.dart';
+import '../widgets/auth_guard.dart';
 import 'activity_routes.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
-  // Actividades (se importan desde activity_routes.dart)
-  ...activityRoutes,
-
+  // Rutas públicas (no requieren autenticación)
   '/login': (context) => const LoginPage(),
   '/register': (context) => const RegisterPage(),
-  '/': (context) => const HomePage(),
-  '/home': (context) => const HomePage(),
-  '/profile': (context) => const ProfilePage(),
-  '/photo-album': (context) => const PhotoAlbumPage(),
-  '/change-password': (context) => const ChangePasswordPage(),
-  '/random-activities': (context) => const RandomActivitiesPage(),
   '/register-assessment': (context) => const RegisterAssessmentPage(),
-  '/diary': (context) => const DiaryPage(),
-  '/statistics': (context) => Scaffold(
-    appBar: AppBar(title: const Text('Estadísticas')),
-    body: const Center(child: Text('Estadísticas próximamente')), // Placeholder
+  
+  // Rutas protegidas (requieren autenticación)
+  '/': (context) => const AuthGuard(child: HomePage()),
+  '/home': (context) => const AuthGuard(child: HomePage()),
+  '/profile': (context) => const AuthGuard(child: ProfilePage()),
+  '/photo-album': (context) => const AuthGuard(child: PhotoAlbumPage()),
+  '/change-password': (context) => const AuthGuard(child: ChangePasswordPage()),
+  '/random-activities': (context) => const AuthGuard(child: RandomActivitiesPage()),
+  '/diary': (context) => const AuthGuard(child: DiaryPage()),
+  '/statistics': (context) => AuthGuard(
+    child: Scaffold(
+      appBar: AppBar(title: const Text('Estadísticas')),
+      body: const Center(child: Text('Estadísticas próximamente')), // Placeholder
+    ),
   ),
+  
+  // Actividades (se importan desde activity_routes.dart) - también protegidas
+  ...activityRoutes.map((key, value) => MapEntry(
+    key, 
+    (context) => AuthGuard(child: value(context)),
+  )),
 };
