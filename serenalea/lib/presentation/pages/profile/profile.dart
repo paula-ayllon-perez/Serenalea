@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../../data/models/user_dto.dart' as local;
 import '../../../data/repositories/user_repository.dart';
 import '../../../core/utils/database_initializer.dart';
+import '../../widgets/main_drawer.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -146,6 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
         title: const Text('Perfil'),
         backgroundColor: AppColors.color1,
       ),
+      bottomNavigationBar: const MainBottomBar(),
       backgroundColor: AppColors.background,
       body: Center(
         child: firebaseUser == null

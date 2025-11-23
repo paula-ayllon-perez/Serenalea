@@ -20,12 +20,15 @@ class _MainBottomBarState extends State<MainBottomBar> {
         Navigator.pushNamed(context, '/'); // Home
         break;
       case 1:
-        Navigator.pushNamed(context, '/search'); // Buscar
+        Navigator.pushNamed(context, '/diary'); // Diario
         break;
       case 2:
-        Navigator.pushNamed(context, '/random-activities'); // Actividades aleatorias
+        Navigator.pushNamed(context, '/statistics'); // Estadísticas
         break;
       case 3:
+        Navigator.pushNamed(context, '/random-activities'); // Actividades aleatorias
+        break;
+      case 4:
         Navigator.pushNamed(context, '/activities'); // Categorías de actividades
         break;
     }
@@ -46,8 +49,12 @@ class _MainBottomBarState extends State<MainBottomBar> {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Buscar',
+          icon: Icon(Icons.book),
+          label: 'Diario',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.bar_chart),
+          label: 'Estadísticas',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.shuffle),

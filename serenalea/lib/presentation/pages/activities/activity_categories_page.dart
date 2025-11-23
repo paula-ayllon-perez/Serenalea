@@ -3,6 +3,7 @@ import '../../../core/constants/colors.dart';
 import '../../../data/models/activity_category_dto.dart';
 import '../../../data/repositories/category_repository.dart';
 import 'category_activities_page.dart';
+import '../../widgets/main_drawer.dart';
 
 class ActivityCategoriesPage extends StatefulWidget {
   const ActivityCategoriesPage({Key? key}) : super(key: key);
@@ -57,6 +58,7 @@ class _ActivityCategoriesPageState extends State<ActivityCategoriesPage> {
         title: const Text('Categorías de Actividades'),
         backgroundColor: AppColors.color1,
       ),
+      bottomNavigationBar: const MainBottomBar(),
       backgroundColor: AppColors.background,
       body: FutureBuilder<List<ActivityCategory>>(
         future: _categoriesFuture,

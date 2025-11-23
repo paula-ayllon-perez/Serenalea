@@ -3,6 +3,7 @@ import '../../../core/constants/colors.dart';
 import '../../../data/repositories/activity_repository.dart';
 import '../../../data/models/activity_dto.dart';
 import 'activity/generic_activity_page.dart';
+import '../../widgets/main_drawer.dart';
 import 'dart:math';
 
 class RandomActivitiesPage extends StatefulWidget {
@@ -54,6 +55,7 @@ class _RandomActivitiesPageState extends State<RandomActivitiesPage> {
         title: const Text('Actividad Aleatoria'),
         backgroundColor: AppColors.color1,
       ),
+      bottomNavigationBar: const MainBottomBar(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _currentActivity == null

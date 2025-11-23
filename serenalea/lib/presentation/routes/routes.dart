@@ -7,6 +7,7 @@ import '../pages/activities/random_activites.dart';
 import '../pages/register/register_assessment.dart';
 import '../pages/profile/photo_album.dart';
 import '../pages/profile/change_password.dart';
+import '../pages/diary/diary_page.dart';
 import 'activity_routes.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
@@ -22,8 +23,9 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/change-password': (context) => const ChangePasswordPage(),
   '/random-activities': (context) => const RandomActivitiesPage(),
   '/register-assessment': (context) => const RegisterAssessmentPage(),
-  '/search': (context) => Scaffold(
-    appBar: AppBar(title: const Text('Buscar')),
-    body: const Center(child: Text('Función de búsqueda próximamente')), // Placeholder
+  '/diary': (context) => const DiaryPage(),
+  '/statistics': (context) => Scaffold(
+    appBar: AppBar(title: const Text('Estadísticas')),
+    body: const Center(child: Text('Estadísticas próximamente')), // Placeholder
   ),
 };
