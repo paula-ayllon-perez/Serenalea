@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/colors.dart';
 import '../../../../data/models/activity_dto.dart';
 import '../../../../data/repositories/photo_repository.dart';
@@ -85,6 +87,23 @@ class _RandomActivityWidgetState extends State<RandomActivityWidget> with Ticker
     setState(() => _isLoading = true);
 
     try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        throw Exception('Usuario no autenticado');
+      }
+
+      // Guardar en completedActivities para estadísticas
+      await FirebaseFirestore.instance.collection('completedActivities').add({
+        'userId': userId,
+        'activityId': widget.activity.id,
+        'activityName': widget.activity.title,
+        'categoryName': 'Aleatoria',
+        'activityType': widget.activity.activityType,
+        'score': widget.activity.score,
+        'duration': widget.activity.duration, // Duración en minutos
+        'completedAt': FieldValue.serverTimestamp(),
+      });
+
       // Guardar en el álbum según el tipo de actividad
       if (_activityType == ActivityType.photo && _imageFile != null) {
         await _photoRepository.savePhoto(
