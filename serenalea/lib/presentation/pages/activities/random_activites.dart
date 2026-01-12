@@ -6,6 +6,15 @@ import '../../widgets/main_drawer.dart';
 import 'dart:math';
 import 'activity/random_activity_widget.dart';
 
+// Resumen rápido y justificación 🎯
+// Resumen (30s): Página que muestra actividades aleatorias para que el usuario las complete o salte; carga actividades desde el repositorio, muestra un contador de completadas y feedback inmediato (SnackBar) tras completar cada actividad.
+//
+// Justificación de diseño:
+// - Enfoque en la acción: presentar una actividad a la vez reduce la fricción y facilita la toma de acción por parte del usuario.
+// - Refuerzo positivo y continuidad: el contador y los SnackBars refuerzan el comportamiento (completar actividades) y motivan a seguir usando la función.
+// - Simplicidad para iterar: la selección aleatoria en cliente permite un desarrollo y pruebas rápidos; está documentada para poder optimizarse (p. ej., prefetch, criterios de personalización) cuando las métricas lo indiquen.
+// - Feedback y accesibilidad: mensajes claros y tiempos cortos (delay antes de la siguiente actividad) ofrecen una experiencia fluida y comprensible para diferentes perfiles de usuario.
+
 class RandomActivitiesPage extends StatefulWidget {
   const RandomActivitiesPage({Key? key}) : super(key: key);
 

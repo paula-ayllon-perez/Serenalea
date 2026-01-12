@@ -322,6 +322,79 @@ class _PhotoAlbumPageState extends State<PhotoAlbumPage> {
   }
 }
 
+// Helpers para iconos de categoría y fallback de imagen
+IconData _iconForCategory(String category) {
+  switch (category.toLowerCase()) {
+    case 'meditación':
+    case 'meditacion':
+      return Icons.self_improvement_rounded;
+    case 'texto':
+    case 'escritura':
+      return Icons.edit_note_rounded;
+    case 'paseo':
+    case 'caminar':
+      return Icons.directions_walk_rounded;
+    case 'arte':
+    case 'dibujar':
+      return Icons.brush_rounded;
+    case 'lectura':
+    case 'leer':
+      return Icons.book_rounded;
+    case 'simple':
+      return Icons.check_circle_rounded;
+    default:
+      return Icons.photo_library_rounded;
+  }
+}
+
+Color _colorForCategory(String category) {
+  switch (category.toLowerCase()) {
+    case 'meditación':
+    case 'meditacion':
+      return const Color(0xFF7B68EE); // Morado
+    case 'texto':
+    case 'escritura':
+      return const Color(0xFF00BCD4); // Cian
+    case 'paseo':
+    case 'caminar':
+      return const Color(0xFF4CAF50); // Verde
+    case 'arte':
+    case 'dibujar':
+      return const Color(0xFFFF7043); // Naranja
+    case 'lectura':
+    case 'leer':
+      return const Color(0xFF795548); // Marrón
+    case 'simple':
+      return const Color(0xFF4CAF50);
+    default:
+      return AppColors.color4;
+  }
+}
+
+Widget _buildCategoryIcon(String category, double size) {
+  final iconData = _iconForCategory(category);
+  final backgroundColor = _colorForCategory(category);
+  return Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          backgroundColor,
+          backgroundColor.withOpacity(0.7),
+        ],
+      ),
+    ),
+    child: Center(
+      child: Icon(
+        iconData,
+        size: size,
+        color: Colors.white,
+      ),
+    ),
+  );
+}
+
 class _PhotoCard extends StatelessWidget {
   final PhotoMemory photo;
   final VoidCallback onTap;
@@ -332,67 +405,47 @@ class _PhotoCard extends StatelessWidget {
   });
 
   Widget _buildImageOrIcon() {
-    // Detectar si es un marcador de icono
-    if (photo.imagePath.startsWith('icon:')) {
-      final iconType = photo.imagePath.substring(5); // Quitar "icon:"
-      
-      IconData iconData;
-      Color backgroundColor;
-      
+    final path = photo.imagePath.trim();
+
+    // Si es marcador explícito "icon:xxx", mapear a icono conocido o a la categoría
+    if (path.startsWith('icon:')) {
+      final iconType = path.substring(5);
       switch (iconType) {
         case 'text':
-          iconData = Icons.edit_note_rounded;
-          backgroundColor = const Color(0xFF00BCD4); // Cian
-          break;
+          return _buildCategoryIcon('texto', 80);
         case 'meditation':
-          iconData = Icons.self_improvement_rounded;
-          backgroundColor = const Color(0xFF7B68EE); // Morado
-          break;
+          return _buildCategoryIcon('meditacion', 80);
         case 'simple':
-          iconData = Icons.check_circle_rounded;
-          backgroundColor = const Color(0xFF4CAF50); // Verde
-          break;
+          return _buildCategoryIcon('simple', 80);
         default:
-          iconData = Icons.photo_library;
-          backgroundColor = AppColors.color4;
+          return _buildCategoryIcon(photo.activityCategory, 80);
       }
-      
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              backgroundColor,
-              backgroundColor.withOpacity(0.7),
-            ],
-          ),
-        ),
-        child: Center(
-          child: Icon(
-            iconData,
-            size: 80,
-            color: Colors.white,
-          ),
-        ),
-      );
     }
-    
-    // Si es una foto real
-    return Image.file(
-      File(photo.imagePath),
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return Container(
-          color: AppColors.color4.withOpacity(0.3),
-          child: Icon(
-            Icons.broken_image,
-            size: 50,
-            color: AppColors.color3,
-          ),
+
+    // Si hay ruta no vacía, intentar mostrar imagen (network o local)
+    if (path.isNotEmpty) {
+      if (path.startsWith('http')) {
+        return Image.network(
+          path,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildCategoryIcon(photo.activityCategory, 80),
         );
-      },
-    );
+      } else {
+        final file = File(path);
+        if (file.existsSync()) {
+          return Image.file(
+            file,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => _buildCategoryIcon(photo.activityCategory, 80),
+          );
+        } else {
+          return _buildCategoryIcon(photo.activityCategory, 80);
+        }
+      }
+    }
+
+    // Si no hay imagen, mostrar icono de la categoría
+    return _buildCategoryIcon(photo.activityCategory, 80);
   }
 
   @override
@@ -504,66 +557,44 @@ class PhotoDetailPage extends StatelessWidget {
   }) : super(key: key);
 
   Widget _buildImageOrIcon() {
-    // Detectar si es un marcador de icono
-    if (photo.imagePath.startsWith('icon:')) {
-      final iconType = photo.imagePath.substring(5);
-      
-      IconData iconData;
-      Color backgroundColor;
-      
+    final path = photo.imagePath.trim();
+
+    if (path.startsWith('icon:')) {
+      final iconType = path.substring(5);
       switch (iconType) {
         case 'text':
-          iconData = Icons.edit_note_rounded;
-          backgroundColor = const Color(0xFF00BCD4);
-          break;
+          return _buildCategoryIcon('texto', 150);
         case 'meditation':
-          iconData = Icons.self_improvement_rounded;
-          backgroundColor = const Color(0xFF7B68EE);
-          break;
+          return _buildCategoryIcon('meditacion', 150);
         case 'simple':
-          iconData = Icons.check_circle_rounded;
-          backgroundColor = const Color(0xFF4CAF50);
-          break;
+          return _buildCategoryIcon('simple', 150);
         default:
-          iconData = Icons.photo_library;
-          backgroundColor = AppColors.color4;
+          return _buildCategoryIcon(photo.activityCategory, 150);
       }
-      
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              backgroundColor,
-              backgroundColor.withOpacity(0.7),
-            ],
-          ),
-        ),
-        child: Center(
-          child: Icon(
-            iconData,
-            size: 150,
-            color: Colors.white,
-          ),
-        ),
-      );
     }
-    
-    // Si es una foto real
-    return Image.file(
-      File(photo.imagePath),
-      fit: BoxFit.contain,
-      errorBuilder: (context, error, stackTrace) {
-        return Center(
-          child: Icon(
-            Icons.broken_image,
-            size: 100,
-            color: Colors.white.withOpacity(0.5),
-          ),
+
+    if (path.isNotEmpty) {
+      if (path.startsWith('http')) {
+        return Image.network(
+          path,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => _buildCategoryIcon(photo.activityCategory, 150),
         );
-      },
-    );
+      } else {
+        final file = File(path);
+        if (file.existsSync()) {
+          return Image.file(
+            file,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => _buildCategoryIcon(photo.activityCategory, 150),
+          );
+        } else {
+          return _buildCategoryIcon(photo.activityCategory, 150);
+        }
+      }
+    }
+
+    return _buildCategoryIcon(photo.activityCategory, 150);
   }
 
   @override

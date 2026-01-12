@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/models/user_dto.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -25,6 +28,12 @@ class _RegisterPageState extends State<RegisterPage> {
   // Campo de perfil ahora se rellena desde el cuestionario
   List<String> _selectedProfiles = [];
   final TextEditingController _photoUrlController = TextEditingController();
+
+  // Selección y subida de imagen
+  final ImagePicker _picker = ImagePicker();
+  File? _selectedImageFile;
+  bool _isUploadingImage = false;
+  double _uploadProgress = 0.0;
 
   // Lista de años (últimos 100 años)
   final List<int> years = List.generate(100, (index) => DateTime.now().year - index);
@@ -81,6 +90,7 @@ class _RegisterPageState extends State<RegisterPage> {
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
           user: user,
+          profileImageFile: _selectedImageFile,
         );
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Usuario registrado correctamente')));
@@ -119,6 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // Abrir assessment y esperar que rellene _selectedProfiles
     await _openAssessment();
+    if (!mounted) return;
 
     if (_selectedProfiles.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se detectó perfil. Por favor completa el cuestionario.')));
@@ -127,6 +138,81 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // Si hay perfiles, continuar con el registro automáticamente
     await _registerUser();
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    final source = await showModalBottomSheet<ImageSource?>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Galería'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Cámara'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            const SizedBox(height: 8)
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final pickedFile = await _picker.pickImage(
+      source: source,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 85,
+    );
+
+    if (pickedFile == null) return;
+
+    setState(() {
+      _selectedImageFile = File(pickedFile.path);
+      _isUploadingImage = true;
+      _uploadProgress = 0.0;
+    });
+
+    try {
+      final filename = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final storageRef = FirebaseStorage.instance.ref().child('profile_images/$filename');
+      final uploadTask = storageRef.putFile(_selectedImageFile!);
+
+      uploadTask.snapshotEvents.listen((event) {
+        final total = event.totalBytes > 0 ? event.totalBytes : 1;
+        setState(() {
+          _uploadProgress = event.bytesTransferred / total;
+        });
+      });
+
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      setState(() {
+        _photoUrlController.text = downloadUrl;
+        _isUploadingImage = false;
+        _uploadProgress = 0.0;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Foto subida correctamente')));
+      }
+    } catch (e) {
+      setState(() {
+        _isUploadingImage = false;
+        _uploadProgress = 0.0;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error subiendo foto: $e')));
+      }
+    }
   }
 
   @override
@@ -272,14 +358,82 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const SizedBox(height: 12),
 
-                        // Foto (opcional)
-                        TextFormField(
-                          controller: _photoUrlController,
-                          decoration: InputDecoration(
-                            labelText: 'URL de foto de perfil (opcional)',
-                            filled: true,
-                            fillColor: AppColors.white,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                        // Foto de perfil (opcional): selector y subida a Firebase Storage
+                        Row(
+                          children: [
+                            // Preview
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: _selectedImageFile != null
+                                    ? Image.file(_selectedImageFile!, fit: BoxFit.cover)
+                                    : (_photoUrlController.text.isNotEmpty
+                                        ? Image.network(_photoUrlController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => Icon(Icons.person, color: AppColors.color3))
+                                        : Icon(Icons.person, color: AppColors.color3)),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ElevatedButton.icon(
+                                    icon: const Icon(Icons.cloud_upload),
+                                    label: const Text('Seleccionar y subir foto'),
+                                    onPressed: _isUploadingImage ? null : _pickAndUploadImage,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.color1,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  if (_isUploadingImage) ...[
+                                    LinearProgressIndicator(value: _uploadProgress),
+                                    const SizedBox(height: 4),
+                                    Text('${(_uploadProgress * 100).toStringAsFixed(0)}%', style: TextStyle(color: AppColors.color3, fontSize: 12)),
+                                  ] else ...[
+                                    if (_photoUrlController.text.isNotEmpty)
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              'Foto subida',
+                                              style: TextStyle(color: AppColors.color3, fontSize: 14),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.clear),
+                                            onPressed: () {
+                                              setState(() {
+                                                _photoUrlController.clear();
+                                                _selectedImageFile = null;
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    else
+                                      const SizedBox.shrink(),
+                                  ]
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'La foto se subirá definitivamente al crear la cuenta y se guardará en tu perfil.',
+                            style: TextStyle(color: AppColors.color3, fontSize: 12),
                           ),
                         ),
                         const SizedBox(height: 18),

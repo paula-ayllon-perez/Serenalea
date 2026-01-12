@@ -25,6 +25,10 @@ class _ActivityCategoriesPageState extends State<ActivityCategoriesPage> {
   // Convertir nombre de icono a IconData
   IconData _getIconData(String iconName) {
     switch (iconName.toLowerCase()) {
+      case 'home':
+        return Icons.home;
+      case 'book':
+        return Icons.menu_book;
       case 'self_improvement':
         return Icons.self_improvement;
       case 'directions_walk':

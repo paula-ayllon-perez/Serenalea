@@ -357,7 +357,7 @@ class DatabaseInitializer {
       'duration': 1,
       'score': 20,
       'difficulty': 'easy',
-      'activityType': 'simple',
+      'activityType': 'photo',
     },
     {
       'categoryId': categoryIds['Actividades en Casa'],

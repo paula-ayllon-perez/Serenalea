@@ -56,38 +56,35 @@ class _CategoryActivitiesPageState extends State<CategoryActivitiesPage> {
         slivers: [
           // AppBar con color de la categoría
           SliverAppBar(
-            expandedHeight: 200,
+            // Usar la altura estándar de la toolbar para evitar huecos
+            expandedHeight: kToolbarHeight,
+            toolbarHeight: kToolbarHeight,
             floating: false,
             pinned: true,
             backgroundColor: categoryColor,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                widget.category.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  shadows: [Shadow(color: Colors.black38, blurRadius: 4)],
-                ),
+            // Título en la barra principal (aparece a la derecha de la flecha de volver)
+            title: Text(
+              widget.category.name,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                shadows: [Shadow(color: Colors.black38, blurRadius: 4)],
               ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      categoryColor,
-                      categoryColor.withOpacity(0.7),
-                    ],
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    widget.category.description,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+            ),
+            // Ajustes visuales para alinear con la flecha
+            centerTitle: false,
+            titleSpacing: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
+            // Fondo con degradado pequeño que no altera la altura
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    categoryColor,
+                    categoryColor.withOpacity(0.7),
+                  ],
                 ),
               ),
             ),
